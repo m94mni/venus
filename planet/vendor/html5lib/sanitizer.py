@@ -19,7 +19,10 @@ class HTMLSanitizerMixin(object):
         'progress', 'q', 's', 'samp', 'section', 'select', 'small', 'sound',
         'source', 'spacer', 'span', 'strike', 'strong', 'sub', 'sup', 'table',
         'tbody', 'td', 'textarea', 'time', 'tfoot', 'th', 'thead', 'tr', 'tt',
-        'u', 'ul', 'var', 'video']
+        'u', 'ul', 'var', 'video',
+        'object', 'param', 'embed']
+        
+    invisible_elements = ['meta', 'style']
       
     mathml_elements = ['maction', 'math', 'merror', 'mfrac', 'mi',
         'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded', 'mphantom',
@@ -32,7 +35,7 @@ class HTMLSanitizerMixin(object):
         'font-face', 'font-face-name', 'font-face-src', 'g', 'glyph', 'hkern',
         'linearGradient', 'line', 'marker', 'metadata', 'missing-glyph',
         'mpath', 'path', 'polygon', 'polyline', 'radialGradient', 'rect',
-        'set', 'stop', 'svg', 'switch', 'text', 'title', 'tspan', 'use']
+        'set', 'stop', 'svg', 'switch', 'text', 'tspan', 'use']
         
     acceptable_attributes = ['abbr', 'accept', 'accept-charset', 'accesskey',
         'action', 'align', 'alt', 'autocomplete', 'autofocus', 'axis',
@@ -56,7 +59,8 @@ class HTMLSanitizerMixin(object):
         'step', 'style', 'summary', 'suppress', 'tabindex', 'target',
         'template', 'title', 'toppadding', 'type', 'unselectable', 'usemap',
         'urn', 'valign', 'value', 'variable', 'volume', 'vspace', 'vrml',
-        'width', 'wrap', 'xml:lang']
+        'width', 'wrap', 'xml:lang',
+        'codebase', 'classid']
 
     mathml_attributes = ['actiontype', 'align', 'columnalign', 'columnalign',
         'columnalign', 'columnlines', 'columnspacing', 'columnspan', 'depth',
@@ -194,6 +198,8 @@ class HTMLSanitizerMixin(object):
                         attrs['style'] = self.sanitize_css(attrs['style'])
                     token["data"] = [[name,val] for name,val in attrs.items()]
                 return token
+            elif token["name"] in self.invisible_elements:
+                return None
             else:
                 if token_type == tokenTypes["EndTag"]:
                     token["data"] = "</%s>" % token["name"]

@@ -201,7 +201,7 @@ def template_info(source):
     for feed in data.feed.get('sources',[]):
         source = tmpl_mapper(feed, Base)
         sources.append([source.get('name'), source])
-    sources.sort()
+    sources.sort(lambda x,y: cmp(x[0].upper(), y[0].upper()))
     output['Channels'] = [source for name,source in sources]
     for entry in data.entries:
         output['Items'].append(tmpl_mapper(entry, Items))
