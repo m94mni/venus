@@ -469,8 +469,8 @@ def spiderPlanet(only_if_new = False):
                 if duplicate:
                     feed_info.feed['planet_message'] = \
                         'duplicate subscription: ' + feeds_seen[duplicate]
-                    log.warn('Duplicate subscription: %s and %s' %
-                        (uri, feeds_seen[duplicate]))
+                    log.warn('Duplicate subscription: %s and %s (dup: %s)' %
+                        (uri, feeds_seen[duplicate], duplicate))
                     if href: feed_info.feed['planet_http_location'] = href
 
                 if id: feeds_seen[id] = uri
