@@ -22,7 +22,7 @@ class HTMLSanitizerMixin(object):
         'u', 'ul', 'var', 'video',
         'object', 'param', 'embed']
         
-    invisible_elements = ['meta', 'style']
+    invisible_elements = ['meta', 'style', 'iframe']
       
     mathml_elements = ['maction', 'math', 'merror', 'mfrac', 'mi',
         'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded', 'mphantom',
