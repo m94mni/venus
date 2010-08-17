@@ -445,6 +445,9 @@ def spiderPlanet(only_if_new = False):
                                 None))
                         except:
                             pass
+                        if hasattr(feed_info.feed, 'planet_detect_encoding') \
+                           and feed_info.feed.get('planet_detect_encoding', "True") == "False":
+                          options['detect_encoding'] = False
 
                     data = feedparser.parse(feed, **options)
                 else:

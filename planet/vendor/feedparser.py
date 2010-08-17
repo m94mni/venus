@@ -3319,7 +3319,7 @@ def _getCharacterEncoding(http_headers, xml_data):
         true_encoding = 'gb18030'
     return true_encoding, http_encoding, xml_encoding, sniffed_xml_encoding, acceptable_content_type
     
-def _toUTF8(data, encoding):
+def _toUTF8(data, encoding, error='strict'):
     '''Changes an XML data stream on the fly to specify a new encoding
 
     data is a raw sequence of bytes (not Unicode) that is presumed to be in %encoding already
@@ -3362,7 +3362,7 @@ def _toUTF8(data, encoding):
                 sys.stderr.write('trying utf-32le instead\n')
         encoding = 'utf-32le'
         data = data[4:]
-    newdata = unicode(data, encoding)
+    newdata = unicode(data, encoding, error)
     if _debug: sys.stderr.write('successfully converted %s data to unicode\n' % encoding)
     declmatch = re.compile('^<\?xml[^>]*?>')
     newdecl = '''<?xml version='1.0' encoding='utf-8'?>'''
@@ -3404,7 +3404,7 @@ def _stripDoctype(data):
 
     return version, data, dict(replacement and safe_pattern.findall(replacement))
     
-def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, referrer=None, handlers=[]):
+def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, referrer=None, handlers=[], detect_encoding=True ):
     '''Parse a feed from a URL, file, stream, or string'''
     result = FeedParserDict()
     result['feed'] = FeedParserDict()
@@ -3499,17 +3499,23 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
     use_strict_parser = 0
     known_encoding = 0
     tried_encodings = []
-    # try: HTTP encoding, declared XML encoding, encoding sniffed from BOM
-    for proposed_encoding in (result['encoding'], xml_encoding, sniffed_xml_encoding):
-        if not proposed_encoding: continue
-        if proposed_encoding in tried_encodings: continue
-        tried_encodings.append(proposed_encoding)
-        try:
-            data = _toUTF8(data, proposed_encoding)
-            known_encoding = use_strict_parser = 1
-            break
-        except:
-            pass
+
+    if not detect_encoding:
+        proposed_encoding = result['encoding']
+        data = _toUTF8(data, proposed_encoding, 'replace')
+        known_encoding = use_strict_parser = 1
+    else:
+        # try: HTTP encoding, declared XML encoding, encoding sniffed from BOM
+        for proposed_encoding in (result['encoding'], xml_encoding, sniffed_xml_encoding):
+            if not proposed_encoding: continue
+            if proposed_encoding in tried_encodings: continue
+            tried_encodings.append(proposed_encoding)
+            try:
+                data = _toUTF8(data, proposed_encoding)
+                known_encoding = use_strict_parser = 1
+                break
+            except:
+                pass
     # if no luck and we have auto-detection library, try that
     if (not known_encoding) and chardet:
         try:
